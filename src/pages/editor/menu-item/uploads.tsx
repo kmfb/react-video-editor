@@ -3,11 +3,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UploadIcon } from "lucide-react";
 import { useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { dispatch } from "@designcombo/events";
+import { ADD_VIDEO } from "@designcombo/state";
+import { generateId } from "@designcombo/timeline";
 
 export const Uploads = () => {
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  const onInputFileChange = () => {};
+  const onInputFileChange = () => {
+    const file = inputFileRef.current?.files?.[0];
+    if (!file) return;
+
+    const fileUrl = URL.createObjectURL(file);
+    dispatch(ADD_VIDEO, {
+      payload: {
+        id: generateId(),
+        details: {
+          src: fileUrl,
+        },
+        metadata: {
+          previewUrl: fileUrl,
+          name: file.name,
+        },
+      },
+      options: {
+        resourceId: "main",
+        scaleMode: "fit",
+      },
+    });
+    
+    // Reset the input so the same file can be selected again
+    if (inputFileRef.current) {
+      inputFileRef.current.value = '';
+    }
+  };
   return (
     <div className="flex flex-1 flex-col">
       <div className="text-text-primary flex h-12 flex-none items-center px-4 text-sm font-medium">
